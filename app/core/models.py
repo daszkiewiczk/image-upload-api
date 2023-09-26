@@ -6,6 +6,24 @@ from django.contrib.auth.models import (
     BaseUserManager,
     PermissionsMixin,
 )
+from django.core.validators import FileExtensionValidator
+import os
+import uuid
+
+
+def extension(filename):
+    """Return file extension"""
+    print(filename.rsplit(".", 1)[1].lower())
+    return filename.rsplit(".", 1)[1].lower()
+
+
+def image_file_path(instance, filename):
+    """Generate file path for new image"""
+    ext = extension(filename)
+    print(ext)
+    filename = f"{uuid.uuid4()}.{ext}"
+
+    return os.path.join("images/", filename)
 
 
 class AccountTier(models.Model):
@@ -21,7 +39,10 @@ class ThumbnailSize(models.Model):
 
 class UploadedImage(models.Model):
     user = models.ForeignKey("MyUser", on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="uploaded_images/")
+    image = models.ImageField(
+        upload_to=image_file_path,
+        validators=[FileExtensionValidator(["png", "jpg", "jpeg"])],
+    )
     upload_time = models.DateTimeField(auto_now_add=True)
 
 
