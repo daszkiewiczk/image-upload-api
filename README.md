@@ -27,13 +27,13 @@ Create a superuser for testing purposes:
 ```bash
 docker compose run app sh -c 'python manage.py createsuperuser'
 ```
-Admin panel is available at [localhost:8000/admin/](http://localhost:8000/admin/).
 
 
 To run the app:
 ```bash
 docker compose up
 ```
+Admin panel is available at [localhost:8000/admin/](http://localhost:8000/admin/). You can add API users and tier from there.
 Swagger UI is available on [localhost:8000/api/docs/](http://localhost:8000/api/docs).
 
 Endpoints use token authentication, token can be obtained through /api/user/token/ endpoint after providing user's credentials.
