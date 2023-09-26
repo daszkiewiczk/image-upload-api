@@ -1,5 +1,6 @@
 # image-upload-api
 An API that allows users to upload images in JPEG or PNG format, implmented in django-rest-framework.
+Approx. time to complete the project: ~10h work over 2 days
 
 # Implemented features
 - users can upload images via POST /api/images
