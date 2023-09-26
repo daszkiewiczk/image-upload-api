@@ -6,7 +6,21 @@ from rest_framework import (
     authentication,
     permissions,
 )
+from django.core.files.base import ContentFile
+from PIL import Image
 from core.models import UploadedImage
+from io import BytesIO
+from django.core.files.storage import default_storage
+
+
+def resize_image(image, height):
+    img = Image.open(image)
+    width = int((height / img.height) * img.width)
+    img_resized = img.resize((width, height), Image.ANTIALIAS)
+
+    img_byte_array = BytesIO()
+    img_resized.save(img_byte_array, format="JPEG")
+    return ContentFile(img_byte_array.getvalue())
 
 
 class UploadImageView(generics.CreateAPIView):
@@ -18,8 +32,21 @@ class UploadImageView(generics.CreateAPIView):
         serializer = UploadedImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
-            # Process image based on user's account tier and return links
-            # ... (resize logic using Pillow and generate links)
+
+            user_tier = request.user.tier
+
+            links = {"original": serializer.instance.image.url}
+
+            for size in user_tier.thumbnail_sizes.all():
+                resized_image_content = resize_image(
+                    serializer.instance.image, size.height
+                )
+                resized_image_name = (
+                    f"{serializer.instance.image.name}_thumbnail_{size.height}.jpg"
+                )
+                path = default_storage.save(resized_image_name, resized_image_content)
+                links[f"thumbnail_{size.height}"] = default_storage.url(path)
+
             return response.Response(serializer.data, status=201)
         return response.Response(serializer.errors, status=400)
 
