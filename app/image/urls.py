@@ -1,8 +1,10 @@
 from django.urls import path, include
 
-from .views import UploadImageView, ListUserImagesView
+from .views import ImageView, CreateExpiringImageLinkView
+from .views import expiring_link_view
 
 urlpatterns = [
-    path("upload/", UploadImageView.as_view(), name="upload-image"),
-    path("list/", ListUserImagesView.as_view(), name="list-images"),
+    path("", ImageView.as_view(), name="images"),
+    path("links/", CreateExpiringImageLinkView.as_view(), name="make-expiring-link"),
+    path("expiring/<int:link_id>/", expiring_link_view, name="expiring-link"),
 ]

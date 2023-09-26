@@ -5,8 +5,17 @@ from core.models import UploadedImage, ImageLink
 class ImageLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageLink
-        fields = ("id", "uploaded_image", "link", "expiration_time")
-        read_only_fields = ("id", "uploaded_image", "expiration_time")
+        fields = ("link", "type")
+        read_only_fields = ("link", "type")
+
+
+class ExpiringImageLinkSerializer(ImageLinkSerializer):
+    uploaded_image_id = serializers.IntegerField(write_only=True)
+    expire_in = serializers.IntegerField(write_only=True)
+
+    class Meta(ImageLinkSerializer.Meta):
+        model = ImageLink
+        fields = ImageLinkSerializer.Meta.fields + ("expire_in", "uploaded_image_id")
 
 
 class UploadedImageSerializer(serializers.ModelSerializer):
@@ -14,6 +23,10 @@ class UploadedImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UploadedImage
-        fields = ("id", "image", "upload_time", "links")
-        read_only_fields = ("id", "upload_time", "links")
-        extra_kwargs = {"image": {"required": {"required": True}}}
+        fields = (
+            "id",
+            "image",
+            "links",
+        )
+        read_only_fields = ("links", "id")
+        extra_kwargs = {"image": {"write_only": True}}

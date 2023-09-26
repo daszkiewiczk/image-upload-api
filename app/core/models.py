@@ -50,11 +50,19 @@ class UploadedImage(models.Model):
 
 
 class ImageLink(models.Model):
+    class LinkType(models.TextChoices):
+        ORIGINAL = "original"
+        EXPIRING = "expiring"
+        THUMBNAIL = "thumbnail"
+
     uploaded_image = models.ForeignKey(
         UploadedImage, on_delete=models.CASCADE, related_name="links"
     )
     link = models.URLField()
     expiration_time = models.DateTimeField(null=True, blank=True)
+    type = models.CharField(
+        max_length=10, choices=LinkType.choices, default=LinkType.THUMBNAIL
+    )
 
 
 class MyUserManager(BaseUserManager):
