@@ -1,6 +1,5 @@
 from django.db import models
 
-# from django.contrib.auth.models import User
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -13,14 +12,12 @@ import uuid
 
 def extension(filename):
     """Return file extension"""
-    print(filename.rsplit(".", 1)[1].lower())
     return filename.rsplit(".", 1)[1].lower()
 
 
 def image_file_path(instance, filename):
     """Generate file path for new image"""
     ext = extension(filename)
-    print(ext)
     filename = f"{uuid.uuid4()}.{ext}"
 
     return os.path.join("images/", filename)
@@ -32,9 +29,15 @@ class AccountTier(models.Model):
     original_link = models.BooleanField(default=False)
     expiring_link = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
 
 class ThumbnailSize(models.Model):
     height = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.height}px"
 
 
 class UploadedImage(models.Model):
@@ -47,7 +50,9 @@ class UploadedImage(models.Model):
 
 
 class ImageLink(models.Model):
-    uploaded_image = models.ForeignKey(UploadedImage, on_delete=models.CASCADE)
+    uploaded_image = models.ForeignKey(
+        UploadedImage, on_delete=models.CASCADE, related_name="links"
+    )
     link = models.URLField()
     expiration_time = models.DateTimeField(null=True, blank=True)
 
@@ -66,6 +71,7 @@ class MyUserManager(BaseUserManager):
         user = self.create_user(email, password)
         user.is_superuser = True
         user.is_staff = True
+        user.tier = AccountTier.objects.get(name="Enterprise")
         user.save(using=self._db)
 
         return user

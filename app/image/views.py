@@ -1,6 +1,5 @@
 from .serializers import UploadedImageSerializer
 from rest_framework import (
-    # views,
     generics,
     response,
     authentication,
@@ -8,7 +7,7 @@ from rest_framework import (
 )
 from django.core.files.base import ContentFile
 from PIL import Image
-from core.models import UploadedImage
+from core.models import UploadedImage, ImageLink
 from io import BytesIO
 from django.core.files.storage import default_storage
 
@@ -34,8 +33,8 @@ class UploadImageView(generics.CreateAPIView):
             serializer.save(user=request.user)
 
             user_tier = request.user.tier
-
-            links = {"original": serializer.instance.image.url}
+            print(user_tier.thumbnail_sizes.all())
+            print(user_tier.name)
 
             for size in user_tier.thumbnail_sizes.all():
                 resized_image_content = resize_image(
@@ -45,7 +44,9 @@ class UploadImageView(generics.CreateAPIView):
                     f"{serializer.instance.image.name}_thumbnail_{size.height}.jpg"
                 )
                 path = default_storage.save(resized_image_name, resized_image_content)
-                links[f"thumbnail_{size.height}"] = default_storage.url(path)
+                ImageLink.objects.create(
+                    uploaded_image=serializer.instance, link=default_storage.url(path)
+                )
 
             return response.Response(serializer.data, status=201)
         return response.Response(serializer.errors, status=400)

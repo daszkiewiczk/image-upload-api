@@ -1,18 +1,34 @@
+- model: core.thumbnailsize
+  pk: 1
+  fields:
+    height: 200
+- model: core.thumbnailsize
+  pk: 2
+  fields:
+    height: 400
 - model: core.accounttier
   pk: 1
   fields:
     name: Basic
     original_link: False
     expiring_link: False
+    thumbnail_sizes:
+    - 1
 - model: core.accounttier
   pk: 2
   fields:
     name: Premium
     original_link: True
     expiring_link: False
+    thumbnail_sizes:
+    - 1
+    - 2
 - model: core.accounttier
   pk: 3
   fields:
     name: Enterprise
     original_link: True
     expiring_link: True
+    thumbnail_sizes:
+    - 1
+    - 2
