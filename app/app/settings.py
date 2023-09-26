@@ -21,6 +21,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "core",
+    "user",
     "image",
     "drf_spectacular",
     "rest_framework",

@@ -1,10 +1,18 @@
 from .serializers import UploadedImageSerializer
-from rest_framework import views, response, permissions
+from rest_framework import (
+    # views,
+    generics,
+    response,
+    authentication,
+    permissions,
+)
 from core.models import UploadedImage
 
 
-class UploadImageView(views.APIView):
+class UploadImageView(generics.CreateAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UploadedImageSerializer
 
     def post(self, request):
         serializer = UploadedImageSerializer(data=request.data)
@@ -16,8 +24,10 @@ class UploadImageView(views.APIView):
         return response.Response(serializer.errors, status=400)
 
 
-class ListUserImagesView(views.APIView):
+class ListUserImagesView(generics.ListAPIView):
+    authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UploadedImageSerializer
 
     def get(self, request):
         images = UploadedImage.objects.filter(user=request.user)
